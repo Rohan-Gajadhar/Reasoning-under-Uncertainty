@@ -65,6 +65,7 @@ public class NaiveBayes{
     private List<DataRow> trainingData;
     private List<Feature> features;
     private List<String> classLabels;
+    private HashMap<String, Integer> classCounts;
     
     public void loadTrainingData(String path) {
         trainingData = new ArrayList<>();
@@ -133,7 +134,7 @@ public class NaiveBayes{
 
     public HashMap<String, Double> processTrainingData(){
         //total counts for each class
-        HashMap<String, Integer> classCounts = new HashMap<String, Integer>();
+        classCounts = new HashMap<String, Integer>();
 
         //initial values for increment and any access which doesn't find a value needs to return 1
         HashMap<String, Integer> perClassFeatureCounts = new HashMap<String, Integer>();
@@ -155,7 +156,7 @@ public class NaiveBayes{
                 String perClassKey = getPerClassFeatureValueKey(classLabel, featureLabel, featureValue);
 
                 //increment the count of occurences of this feature value for this class
-                Integer newFeatureCount = perClassFeatureCounts.getOrDefault(perClassKey, 1) + 1;
+                Integer newFeatureCount = perClassFeatureCounts.getOrDefault(perClassKey, 0) + 1;
                 perClassFeatureCounts.put(perClassKey, newFeatureCount);
             }
         }
@@ -219,8 +220,8 @@ public class NaiveBayes{
         return probabilities;
     }
 
-    Double predictClassProbability(HashMap<String, Double> probabilities, DataRow row, String classLabel){
-        Double probability = 1.0;
+    Double predictClassProbability(HashMap<String, Double> probabilities, DataRow row, String classLabel, Double classProbability){
+        Double probability = classProbability;
         for(int f = 0; f < features.size(); f++){
             Feature feature = features.get(f);
             String featureLabel = feature.getLabel();
@@ -239,19 +240,17 @@ public class NaiveBayes{
         */
 
         String trainingFile = "part2data/breast-cancer-training.csv";
-        String testFile = "part2data/breast-cancer-test.csv";
+        String testFile = "part2data/breast-cancer-test-modified.csv";
 
         NaiveBayes nb = new NaiveBayes();
         nb.loadTrainingData(trainingFile);
         var probabilities = nb.processTrainingData();
 
         //print probabilities
-        /*
         System.out.println("Probabilities:");
         for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
             System.out.println(entry.getKey() + " = " + entry.getValue());
         }
-        */
 
         var testData = nb.loadTestData(testFile);
 
@@ -259,14 +258,15 @@ public class NaiveBayes{
             Double highestProbability = 0.0;
             String predictedClass = "";
             for(String label : nb.classLabels){
-                Double probability = nb.predictClassProbability(probabilities, row, label);
-                System.out.println("Instance: " + row.getInstanceNumber() + " probability of " + label + " = " + probability);
+                Double classProbability = ((double)nb.classCounts.getOrDefault(label, 0)) / nb.trainingData.size();
+                Double probability = nb.predictClassProbability(probabilities, row, label, classProbability);
+                System.out.println("Probability of " + label + " given " + row.toString() + " = " + probability);
                 if (probability > highestProbability){
                     predictedClass = label;
                     highestProbability = probability;
                 }
             }
-            System.out.println("Predicted label of: " + predictedClass);
-        } 
+            System.out.println("Predicted label of " + predictedClass + " for " + row.toString());
+        }
     }
 }
