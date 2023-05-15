@@ -240,33 +240,42 @@ public class NaiveBayes{
         */
 
         String trainingFile = "part2data/breast-cancer-training.csv";
-        String testFile = "part2data/breast-cancer-test-modified.csv";
+        String testFile = "part2data/breast-cancer-test.csv";
 
         NaiveBayes nb = new NaiveBayes();
         nb.loadTrainingData(trainingFile);
         var probabilities = nb.processTrainingData();
 
         //print probabilities
-        System.out.println("Probabilities:");
+        /*System.out.println("Probabilities:");
         for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
             System.out.println(entry.getKey() + " = " + entry.getValue());
-        }
+        }*/
 
         var testData = nb.loadTestData(testFile);
 
+        int correct = 0;
         for(DataRow row : testData){
             Double highestProbability = 0.0;
             String predictedClass = "";
             for(String label : nb.classLabels){
                 Double classProbability = ((double)nb.classCounts.getOrDefault(label, 0)) / nb.trainingData.size();
                 Double probability = nb.predictClassProbability(probabilities, row, label, classProbability);
-                System.out.println("Probability of " + label + " given " + row.toString() + " = " + probability);
+                //System.out.println("Probability of " + label + " given " + row.toString() + " = " + probability);
+                //System.out.println("Instance: " + row.getInstanceNumber() + " Probability of " + label + " = " + probability);
+                System.out.println("Instance: " + row.getInstanceNumber() + "   Score(Y = " + label + ") = " + probability);
                 if (probability > highestProbability){
                     predictedClass = label;
                     highestProbability = probability;
                 }
             }
-            System.out.println("Predicted label of " + predictedClass + " for " + row.toString());
+            if (predictedClass.equals(row.getClassLabel())){
+                correct++;
+            }
+            //System.out.println("Predicted label of " + predictedClass + " for " + row.toString());
+            System.out.println("Predicted label of: " + predictedClass + "\n");
         }
+        System.out.println("Accuracy: " + ((double)correct / testData.size()) * 100 + "%");
+        
     }
 }
