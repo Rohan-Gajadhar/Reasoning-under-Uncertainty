@@ -181,7 +181,7 @@ public class NaiveBayes{
                     String perClassKey = getPerClassFeatureValueKey(classLabel, feature.getLabel(), featureValue);
 
                     //get the current count of each feature value for this class
-                    Integer currentValue = totalCountForFeatureValue.getOrDefault(allClassesKey, 0);
+                    Integer currentValue = totalCountForFeatureValue.getOrDefault(allClassesKey, 0); //was 0 works better with 1
 
                     Integer featureValueCount = perClassFeatureCounts.getOrDefault(perClassKey, 1);
                     currentValue += featureValueCount;
@@ -221,16 +221,17 @@ public class NaiveBayes{
     }
 
     Double predictClassProbability(HashMap<String, Double> probabilities, DataRow row, String classLabel, Double classProbability){
-        Double probability = classProbability;
+        Double score = classProbability;
         for(int f = 0; f < features.size(); f++){
             Feature feature = features.get(f);
             String featureLabel = feature.getLabel();
             String featureValue = row.getFeatureValue(f);
 
             String perClassKey = getPerClassFeatureValueKey(classLabel, featureLabel, featureValue);
-            probability *= probabilities.getOrDefault(perClassKey, 1.0);
+            double perClassProbability = probabilities.getOrDefault(perClassKey, 1.0);
+            score *= perClassProbability;
         }
-        return probability;
+        return score;
     }
 
     public static void main(String[] args){
@@ -244,13 +245,13 @@ public class NaiveBayes{
 
         NaiveBayes nb = new NaiveBayes();
         nb.loadTrainingData(trainingFile);
-        var probabilities = nb.processTrainingData();
+        HashMap<String, Double> probabilities = nb.processTrainingData();
 
         //print probabilities
-        /*System.out.println("Probabilities:");
+        System.out.println("Probabilities:");
         for (Map.Entry<String, Double> entry : probabilities.entrySet()) {
             System.out.println(entry.getKey() + " = " + entry.getValue());
-        }*/
+        }
 
         var testData = nb.loadTestData(testFile);
 
