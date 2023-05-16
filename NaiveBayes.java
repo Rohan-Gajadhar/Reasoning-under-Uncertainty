@@ -145,7 +145,7 @@ public class NaiveBayes{
 
             //increment the class count
             String classLabel = row.getClassLabel();
-            Integer newCount = classCounts.getOrDefault(classLabel, 0) + 1;
+            Integer newCount = classCounts.getOrDefault(classLabel, 1) + 1;
             classCounts.put(classLabel, newCount);
 
             for(int f = 0; f < features.size(); f++){
@@ -156,7 +156,7 @@ public class NaiveBayes{
                 String perClassKey = getPerClassFeatureValueKey(classLabel, featureLabel, featureValue);
 
                 //increment the count of occurences of this feature value for this class
-                Integer newFeatureCount = perClassFeatureCounts.getOrDefault(perClassKey, 0) + 1;
+                Integer newFeatureCount = perClassFeatureCounts.getOrDefault(perClassKey, 1) + 1;
                 perClassFeatureCounts.put(perClassKey, newFeatureCount);
             }
         }
@@ -205,15 +205,17 @@ public class NaiveBayes{
                 for(int v = 0; v < featureValuesArray.length; v++){
                     String featureValue = featureValuesArray[v];
 
-                    String allClassesKey = getFeatureValueKey(feature.getLabel(), featureValue);
+                    //String allClassesKey = getFeatureValueKey(feature.getLabel(), featureValue);
                     String perClassKey = getPerClassFeatureValueKey(classLabel, feature.getLabel(), featureValue);
-                    Double perClassFeatureCount = ((double)perClassFeatureCounts.getOrDefault(perClassKey, 1));
+                    Double perClassFeatureValueCount = ((double)perClassFeatureCounts.getOrDefault(perClassKey, 1));
 
-                    Double totalFeatureCount = ((double)totalCountForFeatureValue.getOrDefault(allClassesKey, 1));
+                    //Double allClassesFeatureValueCount = ((double)totalCountForFeatureValue.getOrDefault(allClassesKey, 1));
+
+                    Double totalClassCount = (double)classCounts.getOrDefault(classLabel, 1);
 
                     probabilities.put(perClassKey, 
-                        perClassFeatureCount / 
-                        totalFeatureCount);
+                        perClassFeatureValueCount / 
+                        totalClassCount);
                 }
             }
         }
