@@ -197,7 +197,6 @@ public class NaiveBayes {
 
     public static void main(String[] args) {
         // command line arguments for training and test files
-        /*
         String trainingFile = "";
         String testFile = "";
         if (args.length == 2) {
@@ -206,9 +205,6 @@ public class NaiveBayes {
         } else {
             System.out.println("Please enter the correct number of arguments");
         }
-        */
-        String trainingFile = "part2data\\breast-cancer-training.csv";
-        String testFile = "part2data\\breast-cancer-test.csv";
 
         NaiveBayes nb = new NaiveBayes();
         nb.loadTrainingData(trainingFile);
@@ -238,7 +234,7 @@ public class NaiveBayes {
             for (String label : nb.classLabels) {
                 Double classProbability = ((double) nb.classCounts.getOrDefault(label, 0)) / nb.trainingData.size();
                 Double probability = nb.predictClassProbability(probabilities, row, label, classProbability);
-                System.out.println("Instance: " + testInstanceNumber + "   Score(Class = " + label + ") = " + probability);
+                System.out.println("Test instance: " + testInstanceNumber + "   Score(Class = " + label + ") = " + probability);
                 if (probability > highestProbability) {
                     predictedClass = label;
                     highestProbability = probability;
